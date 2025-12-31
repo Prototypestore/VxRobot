@@ -1,90 +1,106 @@
-const canvas = document.getElementById('robotCanvas');
-const ctx = canvas.getContext('2d');
+// Setup scene
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf0f0f0);
 
-// Helper function for gradients
-function radialGradientCircle(x, y, radius, innerColor, outerColor) {
-    const grad = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
-    grad.addColorStop(0, innerColor);
-    grad.addColorStop(1, outerColor);
-    return grad;
+// Camera
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.set(0, 1.5, 5);
+
+// Renderer
+const renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Lights
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+directionalLight.position.set(5, 10, 5);
+scene.add(directionalLight);
+
+// Materials
+const bodyMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.4,
+    metalness: 0.1
+});
+const accentMaterial = new THREE.MeshStandardMaterial({
+    color: 0xFFB6C1,
+    roughness: 0.3,
+    metalness: 0.1
+});
+const eyeMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: 0xffffff,
+    emissiveIntensity: 0.8
+});
+
+// Robot parts
+// Head
+const headGeo = new THREE.SphereGeometry(0.7, 64, 64);
+const head = new THREE.Mesh(headGeo, bodyMaterial);
+head.position.y = 1.8;
+scene.add(head);
+
+// Body
+const bodyGeo = new THREE.SphereGeometry(0.6, 64, 64);
+bodyGeo.scale(1, 1.3, 0.8);
+const body = new THREE.Mesh(bodyGeo, bodyMaterial);
+body.position.y = 0.8;
+scene.add(body);
+
+// Ears / side protrusions
+const earGeo = new THREE.SphereGeometry(0.15, 32, 32);
+earGeo.scale(1, 2, 1);
+const leftEar = new THREE.Mesh(earGeo, accentMaterial);
+leftEar.position.set(-0.8, 1.8, 0);
+scene.add(leftEar);
+const rightEar = new THREE.Mesh(earGeo, accentMaterial);
+rightEar.position.set(0.8, 1.8, 0);
+scene.add(rightEar);
+
+// Eyes
+const eyeGeo = new THREE.SphereGeometry(0.1, 32, 32);
+const leftEye = new THREE.Mesh(eyeGeo, eyeMaterial);
+leftEye.position.set(-0.2, 1.9, 0.65);
+scene.add(leftEye);
+const rightEye = new THREE.Mesh(eyeGeo, eyeMaterial);
+rightEye.position.set(0.2, 1.9, 0.65);
+scene.add(rightEye);
+
+// Arms
+const armGeo = new THREE.CylinderGeometry(0.1, 0.1, 1.0, 32);
+const leftArm = new THREE.Mesh(armGeo, bodyMaterial);
+leftArm.position.set(-0.8, 0.9, 0);
+leftArm.rotation.z = Math.PI/8;
+scene.add(leftArm);
+
+const rightArm = new THREE.Mesh(armGeo, bodyMaterial);
+rightArm.position.set(0.8, 0.9, 0);
+rightArm.rotation.z = -Math.PI/8;
+scene.add(rightArm);
+
+// Legs
+const legGeo = new THREE.CylinderGeometry(0.12, 0.12, 1.0, 32);
+const leftLeg = new THREE.Mesh(legGeo, bodyMaterial);
+leftLeg.position.set(-0.25, -0.5, 0);
+scene.add(leftLeg);
+const rightLeg = new THREE.Mesh(legGeo, bodyMaterial);
+rightLeg.position.set(0.25, -0.5, 0);
+scene.add(rightLeg);
+
+// Animate
+function animate() {
+    requestAnimationFrame(animate);
+    head.rotation.y += 0.005;
+    renderer.render(scene, camera);
 }
+animate();
 
-// Robot Colors
-const bodyColor = '#FFFFFF';
-const accentColor = '#FFB6C1';
-const shadowColor = '#E0E0E0';
-const eyeColor = '#FFFFFF';
-const eyeGlowColor = 'rgba(255,255,255,0.6)';
-
-// Draw body with shading
-ctx.fillStyle = radialGradientCircle(200, 350, 60, bodyColor, shadowColor);
-ctx.beginPath();
-ctx.ellipse(200, 350, 60, 90, 0, 0, Math.PI * 2);
-ctx.fill();
-
-// Draw head with gradient
-ctx.fillStyle = radialGradientCircle(200, 200, 70, bodyColor, shadowColor);
-ctx.beginPath();
-ctx.ellipse(200, 200, 70, 70, 0, 0, Math.PI * 2);
-ctx.fill();
-
-// Draw pink ear-like protrusions with shading
-ctx.fillStyle = radialGradientCircle(140, 200, 15, accentColor, '#FF99B4');
-ctx.beginPath();
-ctx.ellipse(140, 200, 15, 30, 0, 0, Math.PI * 2);
-ctx.fill();
-
-ctx.fillStyle = radialGradientCircle(260, 200, 15, accentColor, '#FF99B4');
-ctx.beginPath();
-ctx.ellipse(260, 200, 15, 30, 0, 0, Math.PI * 2);
-ctx.fill();
-
-// Draw glowing eyes
-ctx.fillStyle = eyeColor;
-ctx.beginPath();
-ctx.arc(180, 190, 10, 0, Math.PI * 2);
-ctx.fill();
-ctx.beginPath();
-ctx.arc(220, 190, 10, 0, Math.PI * 2);
-ctx.fill();
-
-// Add glow effect
-ctx.fillStyle = eyeGlowColor;
-ctx.beginPath();
-ctx.arc(180, 190, 16, 0, Math.PI * 2);
-ctx.fill();
-ctx.beginPath();
-ctx.arc(220, 190, 16, 0, Math.PI * 2);
-ctx.fill();
-
-// Draw arms with soft gradients
-ctx.fillStyle = radialGradientCircle(130, 350, 15, bodyColor, shadowColor);
-ctx.beginPath();
-ctx.ellipse(130, 350, 15, 60, Math.PI / 8, 0, Math.PI * 2);
-ctx.fill();
-
-ctx.fillStyle = radialGradientCircle(270, 350, 15, bodyColor, shadowColor);
-ctx.beginPath();
-ctx.ellipse(270, 350, 15, 60, -Math.PI / 8, 0, Math.PI * 2);
-ctx.fill();
-
-// Draw legs with shading
-ctx.fillStyle = radialGradientCircle(180, 480, 15, bodyColor, shadowColor);
-ctx.beginPath();
-ctx.ellipse(180, 480, 15, 50, 0, 0, Math.PI * 2);
-ctx.fill();
-
-ctx.fillStyle = radialGradientCircle(220, 480, 15, bodyColor, shadowColor);
-ctx.beginPath();
-ctx.ellipse(220, 480, 15, 50, 0, 0, Math.PI * 2);
-ctx.fill();
-
-// Add highlight details on body
-ctx.fillStyle = 'rgba(255,255,255,0.3)';
-ctx.beginPath();
-ctx.ellipse(200, 320, 40, 20, -Math.PI/8, 0, Math.PI * 2);
-ctx.fill();
-ctx.beginPath();
-ctx.ellipse(200, 240, 40, 20, 0, 0, Math.PI * 2);
-ctx.fill();
-
+// Handle resize
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
