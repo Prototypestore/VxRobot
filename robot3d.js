@@ -1,8 +1,9 @@
-// Setup scene
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+
+// Scene and camera
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf0f0f0);
 
-// Camera
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
 camera.position.set(0, 1.5, 5);
 
@@ -22,18 +23,18 @@ scene.add(directionalLight);
 // Materials
 const bodyMaterial = new THREE.MeshStandardMaterial({
     color: 0xffffff,
-    roughness: 0.4,
+    roughness: 0.3,
     metalness: 0.1
 });
 const accentMaterial = new THREE.MeshStandardMaterial({
     color: 0xFFB6C1,
-    roughness: 0.3,
+    roughness: 0.2,
     metalness: 0.1
 });
 const eyeMaterial = new THREE.MeshStandardMaterial({
     color: 0xffffff,
     emissive: 0xffffff,
-    emissiveIntensity: 0.8
+    emissiveIntensity: 0.9
 });
 
 // Robot parts
@@ -90,15 +91,34 @@ const rightLeg = new THREE.Mesh(legGeo, bodyMaterial);
 rightLeg.position.set(0.25, -0.5, 0);
 scene.add(rightLeg);
 
+// Optional: Soft ground shadow
+const planeGeo = new THREE.PlaneGeometry(10, 10);
+const planeMat = new THREE.ShadowMaterial({opacity: 0.2});
+const plane = new THREE.Mesh(planeGeo, planeMat);
+plane.rotation.x = -Math.PI/2;
+plane.position.y = -1;
+plane.receiveShadow = true;
+scene.add(plane);
+
+// Enable shadows
+renderer.shadowMap.enabled = true;
+directionalLight.castShadow = true;
+head.castShadow = true;
+body.castShadow = true;
+leftArm.castShadow = true;
+rightArm.castShadow = true;
+leftLeg.castShadow = true;
+rightLeg.castShadow = true;
+
 // Animate
 function animate() {
     requestAnimationFrame(animate);
-    head.rotation.y += 0.005;
+    head.rotation.y += 0.005; // slight head rotation for life
     renderer.render(scene, camera);
 }
 animate();
 
-// Handle resize
+// Handle window resize
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
