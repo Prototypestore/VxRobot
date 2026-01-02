@@ -1,68 +1,154 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
-  import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
-  import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/controls/OrbitControls.js';
+const canvas = document.getElementById("robotCanvas");
+const ctx = canvas.getContext("2d");
 
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf0f0f0);
+// ---------- Helpers ----------
+function circle(x, y, r, color) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+}
 
-  const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 1.5, 5);
+function roundRect(x, y, w, h, r, color) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
 
-  const renderer = new THREE.WebGLRenderer({antialias: true});
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true;
-  document.body.appendChild(renderer.domElement);
+// ---------- Head ----------
+circle(200, 135, 90, "#ffe6f2");
 
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
+// ---------- Visor (real visor shape) ----------
+roundRect(125, 110, 150, 70, 35, "#241332");
 
-  // Lights
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-  scene.add(ambientLight);
+// ---------- Horizontal grid lines inside visor ----------
+ctx.strokeStyle = "rgba(255,255,255,0.1)"; // thin, subtle white
+ctx.lineWidth = 1;
+const visorX = 125;
+const visorY = 110;
+const visorWidth = 150;
+const visorHeight = 70;
+const spacing = 8; // space between lines
+for (let y = visorY; y <= visorY + visorHeight; y += spacing) {
+  ctx.beginPath();
+  ctx.moveTo(visorX, y);
+  ctx.lineTo(visorX + visorWidth, y);
+  ctx.stroke();
+}
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  directionalLight.position.set(5, 10, 5);
-  directionalLight.castShadow = true;
-  scene.add(directionalLight);
+// visor shine
+ctx.globalAlpha = 0.15;
+roundRect(140, 130, 120, 35, 20, "#ffffff");
+ctx.globalAlpha = 1;
 
-  // Load robot model
-  const loader = new GLTFLoader();
-  loader.load('robot.glb', (gltf) => {
-      const robot = gltf.scene;
-      robot.traverse((child) => {
-          if (child.isMesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
+// ---------- Smiling arched eyes (CHIBI ONLY, NO DOTS) ----------
+ctx.strokeStyle = "#ffffff";
+ctx.lineWidth = 9;
+ctx.lineCap = "round";
 
-              // Example: make body white and glossy
-              if (child.name.includes('Body')) {
-                  child.material.color.set(0xffffff);
-                  child.material.roughness = 0.3;
-                  child.material.metalness = 0.1;
-              }
-              // Example: make ears pink
-              if (child.name.includes('Ear')) {
-                  child.material.color.set(0xFFB6C1);
-              }
-              // Example: make eyes glow
-              if (child.name.includes('Eye')) {
-                  child.material.emissive.set(0xffffff);
-                  child.material.emissiveIntensity = 0.9;
-              }
-          }
-      });
-      scene.add(robot);
-  });
+ctx.beginPath();
 
-  function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-  }
-  animate();
+// Left eye (soft arch)
+ctx.moveTo(162, 150);
+ctx.quadraticCurveTo(175, 138, 188, 150);
 
-  window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+// Right eye (soft arch)
+ctx.moveTo(212, 150);
+ctx.quadraticCurveTo(225, 138, 238, 150);
+
+ctx.stroke();
+
+// ---------- Headphones (semi-circles facing outward) ----------
+ctx.fillStyle = "#ff66b2";
+
+// Left headphone (flat side facing head, curve outward)
+ctx.beginPath();
+ctx.arc(119, 140, 35, Math.PI * 0.5, Math.PI * 1.5, false);
+ctx.fill();
+
+// Right headphone (flat side facing head, curve outward)
+ctx.beginPath();
+ctx.arc(281, 140, 35, Math.PI * 1.5, Math.PI * 0.5, false);
+ctx.fill();
+
+// ---------- Headband (straighter, thinner) ----------
+ctx.strokeStyle = "#ff66b2";
+ctx.lineWidth = 17;
+ctx.beginPath();
+ctx.arc(200, 140, 90, Math.PI, 0); // center x, center y, radius, start, end
+ctx.stroke();
+
+// ---------- Neck ----------
+roundRect(185, 210, 30, 35, 10, "#ffe6f2");
+
+// ---------- Arms (SHORT, THICK, CONNECTED) ----------
+roundRect(115, 245, 60, 40, 25, "#ffe6f2"); // left arm
+roundRect(225, 245, 60, 40, 25, "#ffe6f2"); // right arm
+
+// ---------- Body (SMALL, ROUND, CHIBI) ----------
+roundRect(145, 225, 110, 90, 50, "#ffe6f2");
+
+// ---------- Chest panel (semi-circle) ----------
+ctx.fillStyle = "#ff66b2";
+const x = 153;
+const y = 225;
+const width = 94;
+const height = 22;
+const radius = 20; // roundness of top corners
+ctx.beginPath();
+// Top-left corner
+ctx.moveTo(x + radius, y);
+// Top edge
+ctx.lineTo(x + width - radius, y);
+// Top-right corner
+ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+// Right edge
+ctx.lineTo(x + width, y + height);
+// Bottom edge
+ctx.lineTo(x, y + height);
+// Left edge
+ctx.lineTo(x, y + radius);
+// Top-left corner curve
+ctx.quadraticCurveTo(x, y, x + radius, y);
+ctx.closePath();
+ctx.fill();
+
+// ---------- Rounded downward triangle like the arrow icon ----------
+function drawRoundedTriangle(ctx, centerX, topY, width, height, radius, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  const halfWidth = width / 2;
+  // Points of the triangle
+  const topLeftX = centerX - halfWidth;
+  const topLeftY = topY;
+  const topRightX = centerX + halfWidth;
+  const topRightY = topY;
+  const tipX = centerX;
+  const tipY = topY + height;
+  // Start at top-left, down a bit for rounding
+  ctx.moveTo(topLeftX, topLeftY + radius);
+  // Top-left corner
+  ctx.quadraticCurveTo(topLeftX, topLeftY, topLeftX + radius, topLeftY);
+  // Top edge to top-right corner
+  ctx.lineTo(topRightX - radius, topRightY);
+  ctx.quadraticCurveTo(topRightX, topRightY, topRightX, topRightY + radius);
+  // Right edge down to tip
+  ctx.lineTo(tipX + radius, tipY - radius);
+  ctx.quadraticCurveTo(tipX, tipY, tipX - radius, tipY - radius);
+  // Left edge back to start
+  ctx.lineTo(topLeftX + radius, topLeftY + radius);
+  ctx.closePath();
+  ctx.fill();
+}
+// ---------- Example: draw it below chest ----------
+drawRoundedTriangle(ctx, 199, 235, 94, 30, 10, "#ff66b2");
