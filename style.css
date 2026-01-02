@@ -1,2 +1,12 @@
-body { margin: 0; background: #f0f0f0; }
-canvas { display: block; }
+body {
+  margin: 0;
+  height: 100vh;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+canvas {
+  background: transparent;
+}
