@@ -16,6 +16,11 @@ function circle(x, y, r, color) {
 let time = 0;
 let last = performance.now();
 
+/* ---------- Blink System ---------- */
+let blink = 0;
+let blinkTimer = 0;
+let nextBlink = 2 + Math.random() * 3;
+
 /* ---------- Hair ---------- */
 function drawHair() {
   const curls = [
@@ -96,77 +101,94 @@ function drawSideFringeLeft() {
   ctx.restore();
 }
 
-/* ---------- AGGRESSIVE CHIBI EYES + LASHES ---------- */
-function drawEyes() {
+/* ---------- Eyes + Lashes + Blink ---------- */
+function drawEyes(blinkAmount) {
   function drawEye(cx, cy, irisColor) {
     ctx.save();
 
+    const open = 1 - blinkAmount;
+    const eyeHeight = 20 * open + 2;
+
+    // WHITE OF EYE (BLINKS)
     ctx.beginPath();
-    ctx.moveTo(cx-22,cy-8);
-    ctx.quadraticCurveTo(cx,cy-22,cx+22,cy-8);
-    ctx.quadraticCurveTo(cx+26,cy+14,cx,cy+20);
-    ctx.quadraticCurveTo(cx-26,cy+14,cx-22,cy-10);
+    ctx.moveTo(cx - 22, cy);
+    ctx.quadraticCurveTo(cx, cy - eyeHeight, cx + 22, cy);
+    ctx.quadraticCurveTo(cx + 26, cy + eyeHeight * 0.6, cx, cy + eyeHeight);
+    ctx.quadraticCurveTo(cx - 26, cy + eyeHeight * 0.6, cx - 22, cy);
     ctx.closePath();
-    ctx.fillStyle="#ffffff";
+    ctx.fillStyle = "#ffffff";
     ctx.fill();
     ctx.clip();
 
-    // top lashes
+    // TOP LASH LINE
     ctx.beginPath();
-    ctx.moveTo(cx-18,cy-10);
-    ctx.quadraticCurveTo(cx,cy-24,cx+18,cy-10);
-    ctx.lineWidth=9;
-    ctx.lineCap="round";
-    ctx.strokeStyle="#000";
+    ctx.moveTo(cx - 18, cy - 10);
+    ctx.quadraticCurveTo(cx, cy - 24, cx + 18, cy - 10);
+    ctx.lineWidth = 9;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
     ctx.stroke();
 
-    // lash spikes
-    ctx.lineWidth=6;
-    ctx.beginPath(); ctx.moveTo(cx-10,cy-14); ctx.lineTo(cx-14,cy-20); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx,cy-16); ctx.lineTo(cx,cy-24); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx+10,cy-14); ctx.lineTo(cx+14,cy-20); ctx.stroke();
+    // LASH SPIKES
+    ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(cx - 10, cy - 14); ctx.lineTo(cx - 14, cy - 20); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy - 16); ctx.lineTo(cx, cy - 24); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + 10, cy - 14); ctx.lineTo(cx + 14, cy - 20); ctx.stroke();
 
-    const irisY=cy+4;
-    circle(cx,irisY,14,irisColor);
-    circle(cx,irisY,6,"#1b1b1b");
-
-    ctx.fillStyle="#fff";
-    circle(cx-6,irisY-6,4,"#fff");
-    circle(cx+5,irisY+7,2,"#fff");
+    // IRIS + PUPIL (SHRINKS ON BLINK)
+    if (open > 0.15) {
+      const iy = cy + 4;
+      circle(cx, iy, 14 * open, irisColor);
+      circle(cx, iy, 6 * open, "#1b1b1b");
+      circle(cx - 6, iy - 6, 4 * open, "#ffffff");
+      circle(cx + 5, iy + 7, 2 * open, "#ffffff");
+    }
 
     ctx.restore();
   }
 
-  drawEye(175,200,"#9f735a");
-  drawEye(225,200,"#5dbc13");
+  drawEye(175, 200, "#9f735a");
+  drawEye(225, 200, "#5dbc13");
 }
 
-/* ---------- Face ---------- */
+/* ---------- Nose + Mouth ---------- */
 function drawFaceDetails() {
-  circle(200,225,3,"#935d3f");
-  ctx.strokeStyle="#86295d";
-  ctx.lineWidth=2;
+  // nose
+  circle(200, 225, 3, "#935d3f");
+
+  // mouth
+  ctx.strokeStyle = "#86295d";
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(196,235);
-  ctx.quadraticCurveTo(200,237,204,235);
+  ctx.moveTo(196, 235);
+  ctx.quadraticCurveTo(200, 238, 204, 235);
   ctx.stroke();
 }
 
 /* ---------- Glasses ---------- */
 function drawGlasses() {
-  ctx.strokeStyle="#d4b07a";
-  ctx.lineWidth=2;
-  ctx.beginPath(); ctx.arc(175,200,24,0,Math.PI*2); ctx.stroke();
-  ctx.beginPath(); ctx.arc(225,200,24,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = "#d4b07a";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(175, 200, 24, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(225, 200, 24, 0, Math.PI * 2);
+  ctx.stroke();
+  // bridge
+  ctx.beginPath();
+  ctx.moveTo(199, 200);
+  ctx.lineTo(201, 200);
+  ctx.stroke();
 }
 
-/* ---------- Body / Limbs ---------- */
+/* ---------- Body ---------- */
 function drawBody(counterTilt) {
   ctx.save();
-  // rotate around body center
-  ctx.translate(200, 310);
+  ctx.translate(200,310);
   ctx.rotate(counterTilt);
-  ctx.translate(-200, -310);
+  ctx.translate(-200,-310);
+
   ctx.beginPath();
   ctx.moveTo(170,285);
   ctx.quadraticCurveTo(200,275,230,285);
@@ -176,6 +198,7 @@ function drawBody(counterTilt) {
   ctx.closePath();
   ctx.fillStyle="#fff7da";
   ctx.fill();
+
   ctx.restore();
 }
 
@@ -192,70 +215,64 @@ function drawLegs(step) {
 }
 
 function drawShoes(step) {
-  ctx.fillStyle = "#fff";
-  // left shoe — follows left leg
-  ctx.beginPath();
-  ctx.ellipse(190, 365 + step, 9, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  // right shoe — opposite phase
-  ctx.beginPath();
-  ctx.ellipse(210, 365 - step, 9, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillStyle="#fff";
+  ctx.beginPath(); ctx.ellipse(190,365+step,9,5,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(210,365-step,9,5,0,0,Math.PI*2); ctx.fill();
 }
 
 /* ---------- Render ---------- */
-function drawCharacter() {
+function drawCharacter(dt) {
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  const sway=Math.sin(time*1.5);
-  // HEAD — subtle, slower, elegant
-const headBob = Math.sin(time * 1.2) * 4; // slower & smaller vertical bob
-const headTilt = sway * (2 * Math.PI / 180); // max 2° tilt
-const bodyCounterTilt = -sway * (5 * Math.PI / 180);
-  const bodyTilt = -sway * (3 * Math.PI / 180);
-  const bodyShift=sway*14;
-  const armSway=Math.sin(time*1.8)*-18;
-  const legStep=Math.sin(time*2)*6;
+  const sway = Math.sin(time*1.5);
+  const headTilt = sway * (2*Math.PI/180);
+  const bodyCounterTilt = -sway * (3*Math.PI/180);
+  const headBob = Math.sin(time*1.1) * 4;
+  const legStep = Math.sin(time*2) * 6;
+  const armSway = Math.sin(time*1.8) * -18;
 
-  // ✅ BODY ROOT (FIXED PIVOT)
-  // BODY ROOT
-ctx.save();
-ctx.translate(200 + bodyShift, 280);
-ctx.rotate(bodyTilt);
-ctx.translate(-200, -280);
+  // blink update
+  blinkTimer += dt;
+  if (blinkTimer > nextBlink) {
+    blink = Math.min(1, blink + dt * 8);
+    if (blink >= 1) {
+      nextBlink = 2 + Math.random() * 3;
+      blinkTimer = -0.12;
+    }
+  } else {
+    blink = Math.max(0, blink - dt * 6);
+  }
 
-// BACK HAIR FIRST
-drawHair();
-drawLegs(legStep);
-drawArms(armSway);
-drawBody();
-drawShoes(legStep);
+  drawHair();
+  drawLegs(legStep);
+  drawArms(armSway);
+  drawBody(bodyCounterTilt);
+  drawShoes(legStep);
 
-  // ✅ HEAD (CHILD OF BODY)
   ctx.save();
   ctx.translate(200,215-headBob);
   ctx.rotate(headTilt);
   ctx.translate(-200,-215);
 
   drawHead();
-  drawFringe();
-  drawSideFringeRight();
-  drawSideFringeLeft();
-  drawHeadband();
-  drawEyes();
-  drawFaceDetails();
-  drawGlasses();
+drawFringe();
+drawSideFringeRight();
+drawSideFringeLeft();
+drawHeadband();
+drawEyes(blink);
+drawFaceDetails();
+drawGlasses();
 
-  ctx.restore(); // head
-  ctx.restore(); // body
+  ctx.restore();
 }
-
 
 /* ---------- Loop ---------- */
 function animate(now){
-  const dt=(now-last)/1000;
-  last=now;
-  time+=dt;
-  drawCharacter();
+  const dt = (now-last)/1000;
+  last = now;
+  time += dt;
+  drawCharacter(dt);
   requestAnimationFrame(animate);
 }
+
+requestAnimationFrame(animate);
