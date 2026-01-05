@@ -1,3 +1,6 @@
+// ======================
+// CANVAS SETUP
+// ======================
 const canvas = document.getElementById("chibi");
 const ctx = canvas.getContext("2d");
 
@@ -9,281 +12,233 @@ function circle(x, y, r, color) {
   ctx.fill();
 }
 
-/* ---------- Hair (Back Afro) ---------- */
+/* ---------- Time ---------- */
+let time = 0;
+let last = performance.now();
+
+/* ---------- Hair ---------- */
 function drawHair() {
   const curls = [
-    [200, 150, 105],
-    [130, 150, 70],
-    [270, 150, 70],
-    [110, 235, 65],
-    [290, 235, 65],
-    [200, 285, 95]
+    [200,150,105],[130,150,70],[270,150,70],
+    [110,235,65],[290,235,65],[200,285,95]
   ];
   curls.forEach(c => circle(c[0], c[1], c[2], "#3b2a24"));
 }
 
-/* ---------- Head (BIGGER) ---------- */
+/* ---------- Head ---------- */
 function drawHead() {
-  circle(200, 215, 75, "#c28f63");
+  circle(200,215,75,"#c28f63");
 }
 
-/* ---------- Headband + Bow (ON band) ---------- */
+/* ---------- Headband + Bow ---------- */
 function drawHeadband() {
-  ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 8;
-  ctx.lineCap = "round";
-  // ---- Headband arc ----
+  ctx.strokeStyle="#ffffff";
+  ctx.lineWidth=8;
+  ctx.lineCap="round";
+
   ctx.beginPath();
-  ctx.arc(200, 217, 78, Math.PI * 1.1, Math.PI * 1.9);
+  ctx.arc(200,217,78,Math.PI*1.1,Math.PI*1.9);
   ctx.stroke();
-  // ---- Bow anchor ON the band ----
-  // Top-center of the arc
-  const angle = Math.PI * 1.5;
-  const radius = 68;
-  const bx = 200 + Math.cos(angle) * radius;
-  const by = 207 + Math.sin(angle) * radius;
-  ctx.fillStyle = "#ffffff";
-  // ---- Left bow loop ----
+
+  const angle=Math.PI*1.5;
+  const r=68;
+  const bx=200+Math.cos(angle)*r;
+  const by=207+Math.sin(angle)*r;
+
+  ctx.fillStyle="#ffffff";
+
   ctx.beginPath();
-  ctx.moveTo(bx, by);
-  ctx.quadraticCurveTo(bx - 40, by - 16, bx - 30, by + 10);
-  ctx.quadraticCurveTo(bx - 18, by + 26, bx - 8, by + 8);
+  ctx.moveTo(bx,by);
+  ctx.quadraticCurveTo(bx-40,by-16,bx-30,by+10);
+  ctx.quadraticCurveTo(bx-18,by+26,bx-8,by+8);
   ctx.closePath();
   ctx.fill();
-  // ---- Right bow loop ----
+
   ctx.beginPath();
-  ctx.moveTo(bx, by);
-  ctx.quadraticCurveTo(bx + 40, by - 16, bx + 30, by + 10);
-  ctx.quadraticCurveTo(bx + 18, by + 26, bx + 8, by + 8);
+  ctx.moveTo(bx,by);
+  ctx.quadraticCurveTo(bx+40,by-16,bx+30,by+10);
+  ctx.quadraticCurveTo(bx+18,by+26,bx+8,by+8);
   ctx.closePath();
   ctx.fill();
-  // ---- Bow knot (on band) ----
+
   ctx.beginPath();
-  ctx.arc(bx, by, 6, 0, Math.PI * 2);
+  ctx.arc(bx,by,6,0,Math.PI*2);
   ctx.fill();
 }
 
-
-/* ---------- FULL Afro Fringe ---------- */
+/* ---------- Fringe ---------- */
 function drawFringe() {
   ctx.beginPath();
-  ctx.arc(200, 200, 72, Math.PI * 1.05, Math.PI * 1.95);
-  ctx.fillStyle = "#3b2a24";
+  ctx.arc(200,200,72,Math.PI*1.05,Math.PI*1.95);
+  ctx.fillStyle="#3b2a24";
   ctx.fill();
 }
+
 function drawSideFringeRight() {
   ctx.save();
-  // Pivot point of the fringe
-  const fx = 173;
-  const fy = 245;
-  // Move origin to fringe center
-  ctx.translate(fx, fy);
-  // Rotate 90° clockwise (vertical)
-  ctx.rotate(Math.PI / 2);
-  // Draw the same arc, but centered at (0, 0)
+  ctx.translate(173,245);
+  ctx.rotate(Math.PI/2);
   ctx.beginPath();
-  ctx.arc(-32, -90, 40, Math.PI * 1.05, Math.PI * 1.95);
-  ctx.fillStyle = "#3b2a24";
+  ctx.arc(-32,-90,40,Math.PI*1.05,Math.PI*1.95);
+  ctx.fillStyle="#3b2a24";
   ctx.fill();
   ctx.restore();
 }
+
 function drawSideFringeLeft() {
   ctx.save();
-  // Pivot point (left side of head)
-  const fx = 227;
-  const fy = 245;
-  ctx.translate(fx, fy);
-  // Rotate 90° counter-clockwise (mirror of right fringe)
-  ctx.rotate(-Math.PI / 2);
-  // Draw arc (same shape, mirrored)
+  ctx.translate(227,245);
+  ctx.rotate(-Math.PI/2);
   ctx.beginPath();
-  ctx.arc(32, -90, 40, Math.PI * 1.05, Math.PI * 1.95);
-  ctx.fillStyle = "#3b2a24";
+  ctx.arc(32,-90,40,Math.PI*1.05,Math.PI*1.95);
+  ctx.fillStyle="#3b2a24";
   ctx.fill();
   ctx.restore();
 }
 
-/* ---------- AGGRESSIVELY CHIBI EYES ---------- */
+/* ---------- AGGRESSIVE CHIBI EYES + LASHES ---------- */
 function drawEyes() {
-
   function drawEye(cx, cy, irisColor) {
     ctx.save();
-    /* ---- Eye white (wide chibi droop shape) ---- */
+
     ctx.beginPath();
-    ctx.moveTo(cx - 22, cy - 8);                         // left top
-    ctx.quadraticCurveTo(cx, cy - 22, cx + 22, cy - 8);  // heavy top lid
-    ctx.quadraticCurveTo(cx + 26, cy + 14, cx, cy + 20); // big rounded bottom
-    ctx.quadraticCurveTo(cx - 26, cy + 14, cx - 22, cy - 10);
+    ctx.moveTo(cx-22,cy-8);
+    ctx.quadraticCurveTo(cx,cy-22,cx+22,cy-8);
+    ctx.quadraticCurveTo(cx+26,cy+14,cx,cy+20);
+    ctx.quadraticCurveTo(cx-26,cy+14,cx-22,cy-10);
     ctx.closePath();
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle="#ffffff";
     ctx.fill();
     ctx.clip();
-    /* ---- Chibi Eyelashes (top lid only) ---- */
-ctx.beginPath();
-// main thick lash lid
-ctx.moveTo(cx - 18, cy - 10);
-ctx.quadraticCurveTo(cx, cy - 24, cx + 18, cy - 10);
-ctx.lineWidth = 9;
-ctx.lineCap = "round";
-ctx.strokeStyle = "#000000";
-ctx.stroke();
-/* ---- Chibi bottom lid (soft, partial) ---- */
-/* ---- Chibi bottom lid (soft, partial) ---- */
-ctx.beginPath();
-// short, shallow curve — NOT full eye
-ctx.moveTo(cx - 10, cy + 16);
-ctx.quadraticCurveTo(cx, cy + 20, cx + 10, cy + 16);
-ctx.lineWidth = 4;              // thinner than top lid
-ctx.lineCap = "round";
-ctx.strokeStyle = "rgba(0,0,0,0.6)"; // softer = cuter
-ctx.stroke();
 
-/* ---- Small lash spikes (VERY chibi) ---- */
-ctx.lineWidth = 6;
-// left lash
-ctx.beginPath();
-ctx.moveTo(cx - 10, cy - 14);
-ctx.lineTo(cx - 14, cy - 20);
-ctx.stroke();
-// center lash
-ctx.beginPath();
-ctx.moveTo(cx, cy - 16);
-ctx.lineTo(cx, cy - 24);
-ctx.stroke();
-// right lash
-ctx.beginPath();
-ctx.moveTo(cx + 10, cy - 14);
-ctx.lineTo(cx + 14, cy - 20);
-ctx.stroke();
-    /* ---- LOW + CENTERED IRIS (baby/chibi cue) ---- */
-    const irisY = cy + 4;
+    // top lashes
     ctx.beginPath();
-    ctx.arc(cx, irisY, 14, 0, Math.PI * 2);
-    ctx.fillStyle = irisColor;
-    ctx.fill();
-    /* ---- Pupil (tiny, soft) ---- */
-    ctx.beginPath();
-    ctx.arc(cx, irisY + 0, 6, 0, Math.PI * 2);
-    ctx.fillStyle = "#1b1b1b";
-    ctx.fill();
-    /* ---- Highlights (toy-like, not realistic) ---- */
-    ctx.fillStyle = "#ffffff";
-    // Big sparkle
-    ctx.beginPath();
-    ctx.arc(cx - 6, irisY - 6, 4, 0, Math.PI * 2);
-    ctx.fill();
-    // Small sparkle
-    ctx.beginPath();
-    ctx.arc(cx + 5, irisY + 7, 2, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(cx-18,cy-10);
+    ctx.quadraticCurveTo(cx,cy-24,cx+18,cy-10);
+    ctx.lineWidth=9;
+    ctx.lineCap="round";
+    ctx.strokeStyle="#000";
+    ctx.stroke();
+
+    // lash spikes
+    ctx.lineWidth=6;
+    ctx.beginPath(); ctx.moveTo(cx-10,cy-14); ctx.lineTo(cx-14,cy-20); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy-16); ctx.lineTo(cx,cy-24); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+10,cy-14); ctx.lineTo(cx+14,cy-20); ctx.stroke();
+
+    const irisY=cy+4;
+    circle(cx,irisY,14,irisColor);
+    circle(cx,irisY,6,"#1b1b1b");
+
+    ctx.fillStyle="#fff";
+    circle(cx-6,irisY-6,4,"#fff");
+    circle(cx+5,irisY+7,2,"#fff");
+
     ctx.restore();
   }
-  /* ---- Eyes closer + higher = more chibi ---- */
-  drawEye(175, 200, "#9f735a"); // left
-  drawEye(225, 200, "#5dbc13"); // right
+
+  drawEye(175,200,"#9f735a");
+  drawEye(225,200,"#5dbc13");
 }
 
-
-/* ---------- Chibi Nose + Mouth ---------- */
+/* ---------- Face ---------- */
 function drawFaceDetails() {
-  const cx = 200;
-  const cy = 225;
-
-  /* ---- Button Nose ---- */
-  ctx.fillStyle = "#935d3f";
+  circle(200,225,3,"#935d3f");
+  ctx.strokeStyle="#86295d";
+  ctx.lineWidth=2;
   ctx.beginPath();
-  ctx.arc(cx, cy, 3, 0, Math.PI * 2);
-  ctx.fill();
-
-  /* ---- Tiny Chibi Mouth ---- */
-  ctx.strokeStyle = "#86295d";
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-
-  ctx.beginPath();
-  ctx.moveTo(cx - 4, cy + 10);
-  ctx.quadraticCurveTo(cx, cy + 12, cx + 4, cy + 10);
+  ctx.moveTo(196,235);
+  ctx.quadraticCurveTo(200,237,204,235);
   ctx.stroke();
 }
 
 /* ---------- Glasses ---------- */
 function drawGlasses() {
-  ctx.strokeStyle = "#d4b07a";
-  ctx.lineWidth = 2;
-
-  ctx.beginPath();
-  ctx.arc(175, 200, 24, 0, Math.PI * 2);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.arc(225, 200, 24, 0, Math.PI * 2);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(199, 200);
-  ctx.lineTo(201, 200);
-  ctx.stroke();
+  ctx.strokeStyle="#d4b07a";
+  ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(175,200,24,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(225,200,24,0,Math.PI*2); ctx.stroke();
 }
 
-/* ---------- AGGRESSIVE CHIBI BODY ---------- */
+/* ---------- Body / Limbs ---------- */
 function drawBody() {
   ctx.beginPath();
-  ctx.moveTo(170, 285);
-  ctx.quadraticCurveTo(200, 275, 230, 285);
-  ctx.quadraticCurveTo(245, 315, 230, 335);
-  ctx.quadraticCurveTo(200, 345, 170, 335);
-  ctx.quadraticCurveTo(155, 315, 170, 285);
+  ctx.moveTo(170,285);
+  ctx.quadraticCurveTo(200,275,230,285);
+  ctx.quadraticCurveTo(245,315,230,335);
+  ctx.quadraticCurveTo(200,345,170,335);
+  ctx.quadraticCurveTo(155,315,170,285);
   ctx.closePath();
-  ctx.fillStyle = "#fff7da";
-  ctx.fill();
-  // Tiny arms
-  ctx.fillStyle = "#c28f63";
-  ctx.beginPath();
-  ctx.ellipse(150, 305, 10, 14, 0.4, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(250, 305, 10, 14, -0.4, 0, Math.PI * 2);
-  ctx.fill();
-}
-/* ---------- Tiny Legs ---------- */
-function drawLegs() {
-  ctx.fillStyle = "#c28f63";
-  ctx.beginPath();
-  ctx.ellipse(190, 350, 10, 14, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.ellipse(210, 350, 10, 14, 0, 0, Math.PI * 2);
+  ctx.fillStyle="#fff7da";
   ctx.fill();
 }
 
-/* ---------- Tiny Feet ---------- */
+function drawArms(sway) {
+  ctx.fillStyle="#c28f63";
+  ctx.beginPath(); ctx.ellipse(150+sway,305,10,14,0.4,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(250+sway,305,10,14,-0.4,0,Math.PI*2); ctx.fill();
+}
+
+function drawLegs(step) {
+  ctx.fillStyle="#c28f63";
+  ctx.beginPath(); ctx.ellipse(190,350+step,10,14,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(210,350-step,10,14,0,0,Math.PI*2); ctx.fill();
+}
+
 function drawShoes() {
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.ellipse(185, 365, 14, 6, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.ellipse(215, 365, 14, 6, 0, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillStyle="#fff";
+  ctx.beginPath(); ctx.ellipse(185,365,14,6,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(215,365,14,6,0,0,Math.PI*2); ctx.fill();
 }
 
 /* ---------- Render ---------- */
 function drawCharacter() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const sway=Math.sin(time*1.5);
+  const headBob=Math.sin(time*2.4)*8;
+  const headTilt=sway*(4*Math.PI/180);
+  const bodyTilt=sway*(2*Math.PI/180);
+  const bodyShift=sway*18;
+  const armSway=Math.sin(time*1.8)*-18;
+  const legStep=Math.sin(time*3)*6;
+
+  ctx.save();
+  ctx.translate(200+bodyShift,310);
+  ctx.rotate(bodyTilt);
+  ctx.translate(-200,-310);
+
+  drawBody();
+  drawArms(armSway);
+  drawLegs(legStep);
+  drawShoes();
+
+  ctx.save();
+  ctx.translate(200,215-headBob);
+  ctx.rotate(headTilt);
+  ctx.translate(-200,-215);
+
   drawHair();
   drawHead();
   drawFringe();
-  drawHeadband();
   drawSideFringeRight();
   drawSideFringeLeft();
+  drawHeadband();
   drawEyes();
   drawFaceDetails();
   drawGlasses();
-  drawLegs();
-  drawBody();
-  drawShoes();
+
+  ctx.restore();
+  ctx.restore();
 }
 
-drawCharacter();
+/* ---------- Loop ---------- */
+function animate(now){
+  const dt=(now-last)/1000;
+  last=now;
+  time+=dt;
+  drawCharacter();
+  requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);
