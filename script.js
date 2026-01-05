@@ -185,10 +185,16 @@ function drawLegs(step) {
   ctx.beginPath(); ctx.ellipse(210,350-step,10,14,0,0,Math.PI*2); ctx.fill();
 }
 
-function drawShoes() {
-  ctx.fillStyle="#fff";
-  ctx.beginPath(); ctx.ellipse(185,365,14,6,0,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(215,365,14,6,0,0,Math.PI*2); ctx.fill();
+function drawShoes(step) {
+  ctx.fillStyle = "#fff";
+  // left shoe — follows left leg
+  ctx.beginPath();
+  ctx.ellipse(190, 365 + step, 9, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // right shoe — opposite phase
+  ctx.beginPath();
+  ctx.ellipse(210, 365 - step, 9, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 /* ---------- Render ---------- */
@@ -204,15 +210,18 @@ function drawCharacter() {
   const legStep=Math.sin(time*3)*6;
 
   // ✅ BODY ROOT (FIXED PIVOT)
-  ctx.save();
-  ctx.translate(200 + bodyShift, 300);   // WAS 310
-  ctx.rotate(bodyTilt);
-  ctx.translate(-200, -300);
+  // BODY ROOT
+ctx.save();
+ctx.translate(200 + bodyShift, 280);
+ctx.rotate(bodyTilt);
+ctx.translate(-200, -280);
 
-  drawLegs(legStep);
-  drawBody();
-  drawArms(armSway);
-  drawShoes();
+// BACK HAIR FIRST
+drawHair();
+drawLegs(legStep);
+drawArms(armSway);
+drawBody();
+drawShoes(legStep);
 
   // ✅ HEAD (CHILD OF BODY)
   ctx.save();
@@ -220,7 +229,6 @@ function drawCharacter() {
   ctx.rotate(headTilt);
   ctx.translate(-200,-215);
 
-  drawHair();
   drawHead();
   drawFringe();
   drawSideFringeRight();
