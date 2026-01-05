@@ -161,7 +161,12 @@ function drawGlasses() {
 }
 
 /* ---------- Body / Limbs ---------- */
-function drawBody() {
+function drawBody(counterTilt) {
+  ctx.save();
+  // rotate around body center
+  ctx.translate(200, 310);
+  ctx.rotate(counterTilt);
+  ctx.translate(-200, -310);
   ctx.beginPath();
   ctx.moveTo(170,285);
   ctx.quadraticCurveTo(200,275,230,285);
@@ -171,6 +176,7 @@ function drawBody() {
   ctx.closePath();
   ctx.fillStyle="#fff7da";
   ctx.fill();
+  ctx.restore();
 }
 
 function drawArms(sway) {
@@ -202,12 +208,14 @@ function drawCharacter() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   const sway=Math.sin(time*1.5);
-  const headBob=Math.sin(time*2.4)*8;
-  const headTilt=sway*(4*Math.PI/180);
-  const bodyTilt=sway*(2*Math.PI/180);
-  const bodyShift=sway*18;
+  // HEAD — subtle, slower, elegant
+const headBob = Math.sin(time * 1.2) * 4; // slower & smaller vertical bob
+const headTilt = sway * (2 * Math.PI / 180); // max 2° tilt
+const bodyCounterTilt = -sway * (5 * Math.PI / 180);
+  const bodyTilt = -sway * (3 * Math.PI / 180);
+  const bodyShift=sway*14;
   const armSway=Math.sin(time*1.8)*-18;
-  const legStep=Math.sin(time*3)*6;
+  const legStep=Math.sin(time*2)*6;
 
   // ✅ BODY ROOT (FIXED PIVOT)
   // BODY ROOT
@@ -251,5 +259,3 @@ function animate(now){
   drawCharacter();
   requestAnimationFrame(animate);
 }
-
-requestAnimationFrame(animate);
