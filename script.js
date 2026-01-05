@@ -203,16 +203,18 @@ function drawCharacter() {
   const armSway=Math.sin(time*1.8)*-18;
   const legStep=Math.sin(time*3)*6;
 
+  // ✅ BODY ROOT (FIXED PIVOT)
   ctx.save();
-  ctx.translate(200+bodyShift,310);
+  ctx.translate(200 + bodyShift, 300);   // WAS 310
   ctx.rotate(bodyTilt);
-  ctx.translate(-200,-310);
+  ctx.translate(-200, -300);
 
+  drawLegs(legStep);
   drawBody();
   drawArms(armSway);
-  drawLegs(legStep);
   drawShoes();
 
+  // ✅ HEAD (CHILD OF BODY)
   ctx.save();
   ctx.translate(200,215-headBob);
   ctx.rotate(headTilt);
@@ -228,9 +230,10 @@ function drawCharacter() {
   drawFaceDetails();
   drawGlasses();
 
-  ctx.restore();
-  ctx.restore();
+  ctx.restore(); // head
+  ctx.restore(); // body
 }
+
 
 /* ---------- Loop ---------- */
 function animate(now){
